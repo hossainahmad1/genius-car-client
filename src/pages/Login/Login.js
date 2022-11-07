@@ -1,10 +1,14 @@
 import React, { useContext } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import img from '../../assets/images/login/login.svg'
 import { AuthContext } from '../../Context/AuthProvider';
 
 const Login = () => {
-    const {login} = useContext(AuthContext)
+    const { login } = useContext(AuthContext);
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    const from = location.state?.from?.pathname || '/';
 
     const handleLogin = event => {
         event.preventDefault();
@@ -12,16 +16,37 @@ const Login = () => {
         const email = form.email.value;
         const password = form.password.value;
         // console.log(email, password);
-        login(email,password)
-        .then(result => {
-            console.log(result.user)
-            form.reset()
-        })
-        .catch(err => console.error(err))
+        login(email, password)
+            .then(result => {
+                const user = result.user;
+                console.log(user)
+                const currentUser = {
+                    user: user?.email
+                }
+                console.log(currentUser)
+
+                fetch('http://localhost:5000/jwt', {
+                    method: 'POST',
+                    headers: {
+                        'content-type': 'application/json'
+                    },
+                    body: JSON.stringify(currentUser)
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        console.log(data)
+                        // local storage is the easier but not a securier hard;
+                        localStorage.setItem('geniusToken', data.token)
+                    })
+                form.reset()
+                navigate(from, { replace: true })
+            })
+            .catch(err => console.error(err))
+
     }
 
 
-    
+
     return (
         <div className="hero mt-5 mb-10">
             <div className="hero-content gap-10 grid md:grid-cols-2 flex-col lg:flex-row">

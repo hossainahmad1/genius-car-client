@@ -2,6 +2,9 @@ import React, { useContext } from 'react';
 import { useLoaderData } from 'react-router-dom';
 import { AuthContext } from '../../Context/AuthProvider';
 
+
+
+
 const CheckOut = () => {
     const { user } = useContext(AuthContext)
     console.log(user)
